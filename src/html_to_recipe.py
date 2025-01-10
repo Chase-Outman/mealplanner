@@ -1,62 +1,53 @@
 import requests
+from bs4 import BeautifulSoup
+import json
 from recipe import *
 
-def html_to_ingredient_list(web_address):
-    r = requests.get(web_address)
-    lines = r.text.split('\n')
-    start = 0
-    end = 0
 
+def html_to_recipe(webpage):
+    request = requests.get(webpage)
 
-    for line in lines:
-        if "recipeIngredient" in line:
-            start = lines.index(line)
-        if "recipeInstructions" in line:
-            end = lines.index(line)
+    html = BeautifulSoup(request.text, 'html.parser')
 
-    raw_ingredients = lines[start+1:end]
-    cleaned_ingredients = []
-    for i in raw_ingredients:
-        cleaned = i.replace("\"", "").replace(",", "").replace(u"\xa0", " ")
-        if '[' not in cleaned:
-            cleaned = cleaned.replace(']', "")
+    #find the script tag that holds the recipe information
+    recipe_script = html.find(id = "allrecipes-schema_1-0").get_text()
 
-        cleaned_ingredients.append(cleaned)
+    #removed starting and ending square brackets to convert to json format
+    recipe_script = recipe_script.removeprefix('[').removesuffix(']').strip()
+    data = json.loads(recipe_script)
 
+    ingredient_list = html.find_all('ul', 'mm-recipes-structured-ingredients__list')
+
+    
+    #get recipe name from html title
+    recipe_name = html.title.text
+    ingredients = get_ingredient_data(ingredient_list)
+    instructions = []
+    for d in data["recipeInstructions"]:
+        instructions.append(d['text'])
+
+    return Recipe(recipe_name, ingredients, instructions)
+
+def get_ingredient_data(ingredient_list):
     ingredients = []
-    for i in cleaned_ingredients:
-        s = i.split(" ")
-        amount = __get_ingredient_amount(s[0])
-        unit_type = __get_unit_type(s[1])
-        name = i.replace(s[0], "").replace(s[1], "")  
-        
-        ingredient = Ingredient(__get_cleaned_name(name).strip(), amount, unit_type)
-        ingredients.append(ingredient)
+    for list in ingredient_list:
+        for item in list.find_all('p'):
+            
+            quantity_data = item.find_all(attrs = {"data-ingredient-quantity":"true"})
+            unit_type_data = item.find_all(attrs = {"data-ingredient-unit":"true"})
+            name_data = item.find_all(attrs = {"data-ingredient-name":"true"})
+
+            quantity = None
+            unit_type = None
+            name = ""
+
+            if len(quantity_data) != 0:
+                quantity = quantity_data[0].text
+            if len(unit_type_data) != 0:
+                unit_type = unit_type_data[0].text
+            
+            ingredients.append(Ingredient(name_data[0].text, item.text,  quantity, unit_type))
 
     return ingredients
 
-    
-        
-def __get_cleaned_name(name):
-    if '(' in name:        
-        return name.replace(name[name.index('(')-1:name.index(')')+1], "")
-    return name
-    
-
-def __get_ingredient_amount(amount):
-    if "/" in amount:
-        upper_lower = amount.split("/")
-        return (float)(upper_lower[0]) / (float)(upper_lower[1])
-    return amount
-
-def __get_unit_type(unit_type):
-    if "Tbsp" in unit_type:
-        return UnitType.TABLESPOON
-    if "tsp" in unit_type:
-        return UnitType.TEASPOON
-    if "cup" in unit_type:
-        return UnitType.CUPS
-    return UnitType.UNIT    
-
-
-    
+ 
