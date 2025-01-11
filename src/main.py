@@ -1,45 +1,27 @@
-import requests
-import re
-import json
-from bs4 import BeautifulSoup
 
 from recipe import Recipe, Ingredient, UnitType
 from html_to_recipe import html_to_recipe, get_ingredient_data
+from utility import save_object, load_objects
 
 def main():
     # recipe with multiple ingredient lists https://www.allrecipes.com/greek-beef-stuffed-onions-salantourmasi-recipe-8699944
-
-    recipe = html_to_recipe("https://www.allrecipes.com/recipe/228823/quick-beef-stir-fry/")
-
-    recipe.print_recipe()
-
-    # r = requests.get("https://www.allrecipes.com/ploughman-s-sandwich-recipe-8737059")
-
-    # soup = BeautifulSoup(r.text, 'html.parser').find_all('ul', 'mm-recipes-structured-ingredients__list')
-    
-    # # for s in soup:
-    # #     for a in s.find_all('p'):
-    # #         print(a.find_all(attrs = {"data-ingredient-quantity":"true"}))
-
-    # #print(soup[0].find_all(attrs = {"data-ingredient-quantity":"true"}))
-    # #print(soup[0].find_all('p'))     
-
-    # get_ingredient_data(soup)
-                
             
     #TODO get secondary ingredient list within orginal list
     #soup1 = BeautifulSoup(r.text, 'html.parser').find_all('p', 'mm-recipes-structured-ingredients__list-heading text-title-200')
     
-   
+    recipe1 = html_to_recipe("https://www.allrecipes.com/greek-beef-stuffed-onions-salantourmasi-recipe-8699944")
+    recipe2 = html_to_recipe("https://www.allrecipes.com/recipe/275590/marry-me-chicken/")
+    recipe3 = html_to_recipe("https://www.allrecipes.com/bang-bang-chicken-nuggets-recipe-8767654")
+    recipe4 = html_to_recipe("https://www.allrecipes.com/za-atar-chicken-wings-recipe-8754648")
 
-    
+    recipes = [recipe1, recipe2, recipe3, recipe4]
 
-    
-    # list_obj = soup.findAll('ul')
-    
-    # for l in list_obj:
-    #     print(f"\n{l}")
-    
+    #save_object(recipes, 'test_recipe.pkl')
+
+    loaded_recipes = load_objects('test_recipe.pkl')
+    for recipe in loaded_recipes:
+        print(recipe.name)
+
 
 if __name__ == "__main__":
     main()

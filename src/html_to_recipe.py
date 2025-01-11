@@ -39,14 +39,14 @@ def get_ingredient_data(ingredient_list):
 
             quantity = None
             unit_type = None
-            name = ""
+            name = name_data[0].text
 
             if len(quantity_data) != 0:
                 quantity = quantity_data[0].text
             if len(unit_type_data) != 0:
                 unit_type = unit_type_data[0].text
             
-            ingredients.append(Ingredient(name_data[0].text, item.text,  quantity, unit_type))
+            ingredients.append(Ingredient(name, item.text,  quantity, unit_type))
 
     return ingredients
 
