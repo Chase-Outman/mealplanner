@@ -7,7 +7,10 @@ class Recipe():
         self.intructions = intructions
 
     def __str__(self):
-        return f"{self.name}\n\n{'\n'.join(ingredient for ingredient in self.ingredients)}\n\n{'\n'.join(self.intructions)}"
+        return f"{self.name}\n\n{'\n'.join(str(ingredient) for ingredient in self.ingredients)}\n\n{'\n'.join(self.intructions)}"
+    
+    def __eq__(self, value):
+        return self.name == value.name
     
     def print_recipe(self):
         print(f"{self.name}")
