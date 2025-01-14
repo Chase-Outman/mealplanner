@@ -5,7 +5,14 @@ def save_object(obj, filename):
         pickle.dump(obj, outp, pickle.HIGHEST_PROTOCOL)
 
 def load_objects(filename):
+    objs = []
+       
     with open(filename, 'rb') as inp:
-        objs = pickle.load(inp)
-        return objs
+        while 1:
+            try:
+                objs.append(pickle.load(inp))
+            except EOFError:
+                break
+        
+    return objs
     
