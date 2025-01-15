@@ -1,10 +1,15 @@
 import requests
+import re
 from bs4 import BeautifulSoup
 import json
 from recipe import *
 
 
 def html_to_recipe(webpage):
+    pattern = r"^https://www.allrecipes.com/"
+    if not re.search(pattern, webpage):
+        print("Not an all recipes recipe")
+        return
     request = requests.get(webpage)
 
     html = BeautifulSoup(request.text, 'html.parser')

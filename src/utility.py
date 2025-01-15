@@ -1,7 +1,7 @@
 import pickle
 
 def save_object(obj, filename):
-    with open(filename, 'wb') as outp:        
+    with open(filename, 'ab') as outp:        
         pickle.dump(obj, outp, pickle.HIGHEST_PROTOCOL)
 
 def load_objects(filename):
